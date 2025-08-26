@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Aji Convert All Negara</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: url("https://i.ibb.co.com/RpMtGjN6/47c3c5a9aa8bb559a0ee9fc4eb70c2bd.jpg") no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      text-align: center;
+    }
+    .overlay {
+      background: rgba(0,0,0,0.7);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 20px;
+    }
+    .card {
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 0 10px #000;
+    }
+    img.profile {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      margin-bottom: 15px;
+      border: 3px solid #fff;
+    }
+    input, select, button {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: none;
+      font-size: 14px;
+    }
+    button {
+      background: #ff4747;
+      color: #fff;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #e13c3c;
+    }
+    a {
+      color: #00ffea;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <div class="card" id="loginCard">
+      <img src="https://iili.io/K292q0J.md.jpg" alt="Profil" class="profile">
+      <h2>🔒 Login Dulu</h2>
+      <input type="password" id="password" placeholder="Masukkan Password">
+      <button onclick="checkPassword()">Masuk</button>
+    </div>
+
+    <div class="card" id="appCard" style="display:none;">
+      <h2>📱 Aji Convert All Negara</h2>
+      <input type="file" id="fileInput" accept=".txt">
+      <input type="text" id="label" placeholder="Nama Kontak (contoh: Teman)">
+      <input type="text" id="filename" placeholder="Nama File (contoh: hasil)">
+      <input type="number" id="split" placeholder="Kontak per file (50/100)">
+      <button onclick="convert()">Convert ke VCF</button>
+      <p>Butuh bantuan? <br>
+        <a href="https://t.me/ajiconpret" target="_blank">Telegram Admin</a> | 
+        <a href="https://wa.me/628123456789" target="_blank">WhatsApp Admin</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const truePassword = "AJISUKACV201"; // Ganti sesuai password yg diinginkan
+
+    function checkPassword() {
+      const pass = document.getElementById("password").value;
+      if (pass === truePassword) {
+        document.getElementById("loginCard").style.display = "none";
+        document.getElementById("appCard").style.display = "block";
+      } else {
+        alert("Password salah!");
+      }
+    }
+
+    function convert() {
+      const fileInput = document.getElementById("fileInput").files[0];
+      const label = document.getElementById("label").value || "Kontak";
+      const filename = document.getElementById("filename").value || "hasil";
+      const split = parseInt(document.getElementById("split").value) || 0;
+
+      if (!fileInput) {
+        alert("Harap pilih file .txt berisi nomor!");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const lines = e.target.result.split(/\r?\n/).filter(l => l.trim() !== "");
+        let fileCount = 1;
+        let contacts = "";
+        let counter = 1;
+
+        function saveFile(content, name) {
+          const blob = new Blob([content], { type: "text/vcard" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = name + ".vcf";
+          link.click();
+        }
+
+        lines.forEach((num, idx) => {
+          const vcard = `BEGIN:VCARD
+VERSION:3.0
+FN:${label} ${counter}
+TEL;TYPE=CELL:+${num.replace(/\D/g, "")}
+END:VCARD
+`;
+          contacts += vcard;
+          counter++;
+
+          if (split > 0 && counter > split) {
+            saveFile(contacts, `${filename}_${fileCount}`);
+            fileCount++;
+            contacts = "";
+            counter = 1;
+          }
+        });
+
+        if (contacts.trim() !== "") {
+          saveFile(contacts, `${filename}_${fileCount}`);
+        }
+      };
+      reader.readAsText(fileInput);
+    }
+  </script>
+</body>
+</html>
